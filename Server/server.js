@@ -19,6 +19,7 @@ const customerRouter = require('./router/customerRouter')
 const bookingRouter = require('./router/bookingRouter')
 const userRouter = require('./router/userRouter')
 const dashboardRouter = require('./router/dashboardRouter')
+const homeRouter = require('./router/homeRouter')
 
 
 //Cors
@@ -53,6 +54,9 @@ app.use('/api/customer', customerRouter)
 app.use('/api/booking', bookingRouter)
 app.use('/api/user', userRouter)
 app.use('/api/dashboard', dashboardRouter)
+
+// client
+app.use('/api/client', homeRouter)
 
 const port = 3001;
 

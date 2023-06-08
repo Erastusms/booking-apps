@@ -4,7 +4,8 @@ const auth = require('../middleware/auth');
 const checkRole = require('../middleware/CheckRole');
 const router = express.Router();
 
-router.post('/create', auth, checkRole('admin'), userController.addUser);
+// router.post('/create', auth, checkRole('admin'), userController.addUser);
+router.post('/create', userController.addUser);
 router.get('/view', auth, userController.viewUser);
 router.patch(
   '/update/:id',

@@ -4,7 +4,7 @@ const Category = require('../models/Category');
 const Item = require('../models/Item');
 
 module.exports = {
-  homePage: async (req, res) => {
+  viewHomePage: async (req, res) => {
     try {
       // tarik data item paling laris berdasarkan sumBooked
       const hotItem = await Item.find()
@@ -13,9 +13,9 @@ module.exports = {
         )
         .limit(5)
         .populate({
-          patj: 'image',
+          path: 'image',
           select: '_id imageUrl',
-          options: { sort: { sumbooked: -1 } }, // -1 maksudnya descending
+          options: { sort: { sumBooked: -1 } }, // -1 maksudnya descending
         });
 
       const categoryList = await Category.find({
@@ -38,7 +38,7 @@ module.exports = {
         type: 'Testimony',
         isHighlight: true,
       })
-        .select('_id infoName type imageURl description item')
+        .select('_id infoName type imageUrl description item')
         .limit(3)
         .populate({
           path: 'item',
@@ -49,15 +49,18 @@ module.exports = {
       const Event = await Category.find({ categoryName: 'Event' });
       const Tour = await Category.find({ categoryName: 'Tour Package' });
 
-      const sumHotel = Hotel.reduce((count, current) => {
-        count + current.item.length, 0;
-      });
-      const sumEvent = Event.reduce((count, current) => {
-        count + current.item.length, 0;
-      });
-      const sumTour = Tour.reduce((count, current) => {
-        count + current.item.length, 0;
-      });
+      const sumHotel = Hotel.reduce(
+        (count, current) => count + current.item.length,
+        0
+      );
+      const sumEvent = Event.reduce(
+        (count, current) => count + current.item.length,
+        0
+      );
+      const sumTour = Tour.reduce(
+        (count, current) => count + current.item.length,
+        0
+      );
 
       res.status(200).json({
         summaryInfo: {
@@ -68,6 +71,32 @@ module.exports = {
         hotItem,
         categoryList,
         testimony,
+      });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+
+  viewDetailPage: async (req, res) => {
+    try {
+      // populate = join in sql
+      const { id } = req.params;
+      const item = await Item.findOne({ _id: id })
+        .populate({ path: 'category', select: 'id categoryName' })
+        .populate({ path: 'image', select: 'id imageUrl' })
+        .populate({
+          path: 'info',
+          match: { type: { $in: ['NearBy', 'Testimony'] } },
+        })
+        .populate({ path: 'feature' });
+
+      if (!item) throw new Error('Item not found');
+
+      const bank = await Bank.find();
+
+      res.status(200).json({
+        ...item._doc,
+        bank,
       });
     } catch (err) {
       res.status(500).json({ message: err.message });
